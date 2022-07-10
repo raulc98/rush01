@@ -1,110 +1,149 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "ft_putchar.c"
+//#include "ft_putchar.c"
 
-//método para pintar los caracteres
-void  pintarCosas(int ancho,int largo, int maxAncho, int maxLargo);
 
-//método del rush
-void rush(int ancho,int largo)
+void paint_corners_a();
+
+void paint_corners_c(int is_final);
+
+void paint_borders(int is_final);
+
+void paint_rest();
+
+void     painter_controller_horizonal(int x, int y, int max_x, int max_y);
+
+void     painter_controller_middle(int x,int y , int max_x, int max_y);
+
+void     painter_controller_left(int y,int max_y);
+
+void     painter_controller_rigth(int y,int max_y);
+
+void     print_controller(int x, int y);
+
+void rush(int x,int y)
 {
-    int maxAncho;
-    int maxLargo;
-    if(ancho > 0 && largo > 0)
+    if(x > 0 && y > 0)
     {
-        //recuperamos la longitud maxima del ancho y largo del cuadrado
-        maxAncho = ancho;
-        maxLargo = largo;
-        //contador para el while vertical
-        int contLargo = 1;
-        while(largo >= contLargo){
-            //contador y while del ancho del cuadrado
-            int contAncho = 1;
-            while(ancho >= contAncho){
-                //entramos en las condiciones para que pinte una cosa u otra.
-                pintarCosas(contAncho,contLargo,maxAncho,maxLargo);
-                contAncho ++;
-            }
-        contLargo ++;
+        print_controller(x,y);
+    }
+}
+
+void print_controller(int max_x, int max_y)
+{
+    int e_y = 1;
+    while(max_y >= e_y){
+            //contador y while del x del cuadrado
+        int e_x = 1;
+        while(max_x >= e_x){
+            //entramos en las condiciones para que pinte una cosa u otra.
+            painter_controller_horizonal(e_x,e_y,max_x,max_y);
+            e_x ++;
         }
+        e_y ++;
     }
 }
 
 //Método que pinta los caracteres
-void     pintarCosas(int ancho, int largo, int maxAncho, int maxLargo)
+void     painter_controller_horizonal(int x, int y, int max_x, int max_y)
 {
-    //recoge el valor del char a imprimir por pantalla
     char spray;
-    //variable que controla si es final de línea para poner un salto de línea
-    int esFinal;
-    
-    //CÓDIGO DE CONTROL DEL PINTADO
-    //------------
-    //ESQUINAS
-    //Esquina superior izquierda.
-    if(ancho == 1 && largo == 1)
+
+    if(x == 1)
     {
-        spray = 'A';
-        esFinal = 0;
-        pintar(spray,esFinal);
+        painter_controller_left(y,max_y);
     }
-    //Esquina inferior izquierda.
-    else if(ancho == 1 && largo == maxLargo)
+    else if(x == max_x)
     {
-        spray = 'C';
-        esFinal = 0;
-        pintar(spray,esFinal);
+        painter_controller_rigth(y,max_y);
     }
-    //Esquina superior derecha
-    else if(ancho == maxAncho && largo == 1)
-    {
-        spray = 'C';
-        esFinal = 1;
-        pintar(spray,esFinal);
-    }
-    //Esquina inferior derecha
-    else if(ancho == maxAncho && largo == maxLargo)
-    {
-        spray = 'A';
-        esFinal = 0;
-        pintar(spray,esFinal);
-    }
-    //BORDES
-    //------------
-    //borde top
-    else if(ancho != 1 && ancho != maxAncho && largo == 1)
-    {
-        spray = 'B';
-        esFinal = 0;
-        pintar(spray,esFinal);
-    }
-    //Borde izquierdo
-    else if(ancho == 1 && largo != 1 && largo != maxLargo)
-    {
-        spray = 'B';
-        esFinal = 0;
-        pintar(spray,esFinal);
-    }
-    //Borde abajo
-    else if(ancho != 1 && ancho != maxAncho && largo == maxLargo)
-    {
-        spray = 'B';
-        esFinal = 0;
-        pintar(spray,esFinal);
-    }
-    //Borde derecho
-    else if(ancho == maxAncho && largo != 1 && largo != maxLargo)
-    {
-        spray = 'B';
-        esFinal = 1;
-        pintar(spray,esFinal);
-    }
-    //RESTO
     else{
-        spray = ' ';
-        esFinal = 0;
-        pintar(spray,esFinal);
+        painter_controller_middle(x,y,max_x,max_y);
+    }
+    
+}
+
+void painter_controller_left(int y, int max_y)
+{
+    int is_final;
+    if(y == 1){
+        paint_corners_a();
+    }else if(y == max_y){
+        is_final = 0;
+        paint_corners_c(is_final);
+    }else{
+        is_final = 0;
+        paint_borders(is_final);
+    }
+}
+
+void painter_controller_middle(int x, int y, int max_x, int max_y)
+{
+    int is_final;
+    if(y == 1 && x != 1 && x != max_x){
+        is_final = 0;
+        paint_borders(is_final);
+    }else if(y == max_y && x != 1 && x != max_x){
+        is_final = 0;
+        paint_borders(is_final);
+    }
+    else{
+        paint_rest();
+    }
+}
+
+void painter_controller_rigth(int y, int max_y)
+{
+    int is_final;
+    if(y == 1){
+        is_final = 1;
+        paint_corners_c(is_final);
+    }else if(y == max_y){
+        paint_corners_a();
+    }
+    else{
+        is_final = 1;
+        paint_borders(is_final);
     }
 }
 
 
+
+void paint_corners_c(int is_final)
+{
+    char spray;
+
+    spray = 'C';
+    putchar(spray);
+    if(is_final){
+        spray = '\n';
+        putchar(spray);
+    }
+}
+
+void paint_corners_a()
+{
+    char spray;
+
+    spray = 'A';
+    putchar(spray);
+}
+
+void paint_borders(int is_final)
+{
+    char spray;
+
+    spray = 'B';
+    putchar(spray);
+    if(is_final){
+        spray = '\n';
+        putchar(spray);
+    }
+}
+
+void paint_rest(){
+    char spray;
+
+    spray = ' ';
+    putchar(spray);
+}
